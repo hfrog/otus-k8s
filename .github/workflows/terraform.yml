@@ -1,4 +1,4 @@
-name: test-tf
+name: terraform
 on:
 - workflow_dispatch
 env:
@@ -12,3 +12,4 @@ jobs:
     - uses: actions/checkout@v4
     - run: scripts/install_terraform.sh
     - run: scripts/prepare_terraform.sh
+    - run: scripts/plan_terraform.sh
