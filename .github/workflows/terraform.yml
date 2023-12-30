@@ -10,6 +10,6 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v4
-    - run: scripts/install_terraform.sh
-    - run: scripts/prepare_terraform.sh
-    - run: scripts/plan_terraform.sh
+    - run: scripts/terraform_install.sh
+    - run: scripts/terraform_prepare.sh
+    - run: scripts/terraform_plan.sh
