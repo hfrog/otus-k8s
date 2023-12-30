@@ -2,7 +2,6 @@ name: terraform
 on:
 - workflow_dispatch
 env:
-  YC_TOKEN: ${{ secrets.YC_TOKEN }}
   YC_CLOUD_ID: ${{ secrets.YC_CLOUD_ID }}
   YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
 jobs:
@@ -13,3 +12,5 @@ jobs:
     - run: scripts/terraform_install.sh
     - run: scripts/terraform_prepare.sh
     - run: scripts/terraform_plan.sh
+      env:
+        YC_TOKEN: ${{ secrets.YC_TOKEN }}
