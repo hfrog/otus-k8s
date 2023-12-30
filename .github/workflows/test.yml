@@ -1,0 +1,9 @@
+name: test-tf
+on:
+- workflow_dispatch
+jobs:
+  deploy_vm:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v4
+    - run: echo hello
