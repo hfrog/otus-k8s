@@ -1,9 +1,14 @@
 name: test-tf
 on:
 - workflow_dispatch
+env:
+  YC_TOKEN: ${{ secrets.YC_TOKEN }}
+  YC_CLOUD_ID: ${{ secrets.YC_CLOUD_ID }}
+  YC_FOLDER_ID: ${{ secrets.YC_FOLDER_ID }}
 jobs:
   deploy_vm:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v4
     - run: scripts/install_terraform.sh
+    - run: scripts/prepare_terraform.sh
