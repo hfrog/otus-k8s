@@ -10,7 +10,6 @@ terraform {
     endpoints = {
       s3 = "https://storage.yandexcloud.net"
     }
-    bucket = "hfrog-data" # XXX
     region = "ru-central1"
     key    = "terraform/main.tfstate"
 
