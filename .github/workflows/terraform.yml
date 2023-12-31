@@ -10,7 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - run: scripts/terraform_install.sh
-    - run: scripts/terraform_prepare.sh
+    - run: scripts/terraform_init.sh
     - run: scripts/terraform_plan.sh
       env:
         YC_TOKEN: ${{ secrets.YC_TOKEN }}
