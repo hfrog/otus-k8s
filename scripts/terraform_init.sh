@@ -6,3 +6,4 @@ mv terraform/dot.terraformrc ~/.terraformrc
 
 cd terraform
 terraform init
+cat .terraform.lock.hcl
