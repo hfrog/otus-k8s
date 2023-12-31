@@ -24,6 +24,14 @@ provider "yandex" {
   zone = "ru-central1-b"
 }
 
+variable "image_id" {
+  default = "fd85an6q1o26nf37i2nl" # ubuntu-20-04-lts-v20231218
+}
+
+variable "ssh-keys" {
+#  default = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
+}
+
 resource "yandex_compute_instance" "vm-1" {
   name = "terraform1"
 
@@ -35,7 +43,7 @@ resource "yandex_compute_instance" "vm-1" {
 
   boot_disk {
     initialize_params {
-      image_id = "fd85an6q1o26nf37i2nl" # ubuntu-20-04-lts-v20231218
+      image_id = var.image_id
       size     = 30
     }
   }
@@ -46,7 +54,7 @@ resource "yandex_compute_instance" "vm-1" {
   }
 
   metadata = {
-    ssh-keys = "ubuntu:XXX"
+    ssh-keys = var.ssh-keys
   }
 }
 

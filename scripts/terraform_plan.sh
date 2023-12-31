@@ -3,4 +3,4 @@ set -x
 set -e
 
 cd terraform
-terraform plan
+terraform plan -var="ssh-keys=$SSH_KEYS"
