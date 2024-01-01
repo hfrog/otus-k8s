@@ -44,7 +44,7 @@ resource "yandex_compute_instance" "vm-1" {
   boot_disk {
     initialize_params {
       image_id = var.image_id
-      size     = 30
+      size     = 20
     }
   }
 
