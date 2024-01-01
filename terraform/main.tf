@@ -84,6 +84,32 @@ resource "yandex_compute_instance" "vm-2" {
   }
 }
 
+resource "yandex_compute_instance" "vm-3" {
+  name = "terraform3"
+
+  resources {
+    cores         = 2
+    core_fraction = 20
+    memory        = 8
+  }
+
+  boot_disk {
+    initialize_params {
+      image_id = var.image_id
+      size     = 20
+    }
+  }
+
+  network_interface {
+    subnet_id = yandex_vpc_subnet.subnet-1.id
+    nat       = true
+  }
+
+  metadata = {
+    ssh-keys = var.ssh-keys
+  }
+}
+
 resource "yandex_vpc_network" "network-1" {
   name = "network1"
 }
