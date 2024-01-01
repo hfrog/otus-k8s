@@ -7,6 +7,8 @@ env:
 jobs:
   deploy_vm:
     runs-on: ubuntu-20.04
+    environment:
+      name: manual
     steps:
     - uses: actions/checkout@v4
     - run: scripts/terraform_install.sh
