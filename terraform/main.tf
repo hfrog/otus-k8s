@@ -32,60 +32,20 @@ variable "ssh-keys" {
 #  default = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
 }
 
-resource "yandex_compute_instance" "vm-1" {
-  name = "terraform1"
-
-  resources {
-    cores         = 2
-    core_fraction = 20
-    memory        = 8
-  }
-
-  boot_disk {
-    initialize_params {
-      image_id = var.image_id
-      size     = 20
-    }
-  }
-
-  network_interface {
-    subnet_id = yandex_vpc_subnet.subnet-1.id
-    nat       = true
-  }
-
-  metadata = {
-    ssh-keys = var.ssh-keys
-  }
+variable "num" {
+  default = 2
 }
 
-resource "yandex_compute_instance" "vm-2" {
-  name = "terraform2"
-
-  resources {
-    cores         = 2
-    core_fraction = 20
-    memory        = 8
-  }
-
-  boot_disk {
-    initialize_params {
-      image_id = var.image_id
-      size     = 20
-    }
-  }
-
-  network_interface {
-    subnet_id = yandex_vpc_subnet.subnet-1.id
-    nat       = true
-  }
-
-  metadata = {
-    ssh-keys = var.ssh-keys
-  }
+locals {
+  names = toset(
+    [for i in range(1, var.num + 1) : "terraform-${i}"]
+  )
 }
 
-resource "yandex_compute_instance" "vm-3" {
-  name = "terraform3"
+resource "yandex_compute_instance" "instance" {
+  for_each = local.names
+  name     = each.value
+  hostname = each.value
 
   resources {
     cores         = 2
@@ -121,10 +81,10 @@ resource "yandex_vpc_subnet" "subnet-1" {
   v4_cidr_blocks = ["192.168.10.0/24"]
 }
 
-output "internal_ip_address_vm_1" {
-  value = yandex_compute_instance.vm-1.network_interface.0.ip_address
+output "internal_ip" {
+  value = { for name in local.names : name => yandex_compute_instance.instance[name].network_interface[0].ip_address }
 }
 
-output "external_ip_address_vm_1" {
-  value = yandex_compute_instance.vm-1.network_interface.0.nat_ip_address
+output "external_ip" {
+  value = { for name in local.names : name => yandex_compute_instance.instance[name].network_interface[0].nat_ip_address }
 }
