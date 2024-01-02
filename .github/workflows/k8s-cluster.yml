@@ -15,6 +15,7 @@ jobs:
         SSH_PRIVATE_KEY: |
           ${{ secrets.SSH_PRIVATE_KEY }}
         BUCKET: ${{ secrets.BUCKET }}
+        K8S_VERSION: ${{ vars.K8S_VERSION }}
 
 #  kubeadm-init:
 #    runs-on: ubuntu-20.04

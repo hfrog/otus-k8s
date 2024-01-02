@@ -11,5 +11,6 @@ chmod 400 ~/.ssh/id_ed25519
 VMS=$(jq -r .external_ip.value[] terraform-output.json)
 for f in $VMS; do
   echo $f
-  ssh -o 'StrictHostKeyChecking=no' ubuntu@$f ip -br -c a
+  scp -o StrictHostKeyChecking=no scripts/prepare_local_for_k8s.sh ubuntu@${f}:
+  ssh ubuntu@$f sudo K8S_VERSION=$K8S_VERSION ./prepare_local_for_k8s.sh
 done
