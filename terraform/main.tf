@@ -34,11 +34,11 @@ variable "ssh-keys" {
 }
 
 variable "master_count" {
-  default = 2
+  default = 1
 }
 
 variable "worker_count" {
-  default = 2
+  default = 0
 }
 
 locals {
