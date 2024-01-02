@@ -34,18 +34,34 @@ variable "ssh-keys" {
 }
 
 variable "master_count" {
-  default = 1
+  default = 2
 }
 
 variable "worker_count" {
-  default = 0
+  default = 1
+}
+
+variable "lb_count" {
+  default = 1
 }
 
 locals {
+  lb_names = toset([for i in range(1, var.lb_count + 1) : "lb-${i}"])
   names = toset(concat(
     [for i in range(1, var.master_count + 1) : "master-${i}"],
-    [for i in range(1, var.worker_count + 1) : "worker-${i}"]
+    [for i in range(1, var.worker_count + 1) : "worker-${i}"],
+    tolist(local.lb_names)
   ))
+}
+
+# reserve static external IP for load balancers
+resource "yandex_vpc_address" "lb" {
+  for_each = local.lb_names
+  name     = each.value
+
+  external_ipv4_address {
+    zone_id = "ru-central1-b"
+  }
 }
 
 resource "yandex_compute_instance" "instance" {
@@ -56,19 +72,20 @@ resource "yandex_compute_instance" "instance" {
   resources {
     cores         = 2
     core_fraction = 20
-    memory        = 8
+    memory        = startswith(each.value, "lb") ? 2 : 8
   }
 
   boot_disk {
     initialize_params {
       image_id = var.image_id
-      size     = 20
+      size     = startswith(each.value, "lb") ? 5 : 20
     }
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.subnet-1.id
-    nat       = true
+    subnet_id      = yandex_vpc_subnet.subnet-1.id
+    nat            = true
+    nat_ip_address = startswith(each.value, "lb") ? yandex_vpc_address.lb[each.value].external_ipv4_address[0].address : null
   }
 
   metadata = {
