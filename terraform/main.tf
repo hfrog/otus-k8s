@@ -25,21 +25,27 @@ provider "yandex" {
 }
 
 variable "image_id" {
-  default = "fd85an6q1o26nf37i2nl" # ubuntu-20-04-lts-v20231218
+#  default = "fd85an6q1o26nf37i2nl" # ubuntu-20-04-lts-v20231218
+  default = "fd866d9q7rcg6h4udadk" # ubuntu-22-04-lts-v20231225
 }
 
 variable "ssh-keys" {
 #  default = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
 }
 
-variable "num" {
+variable "master_count" {
+  default = 2
+}
+
+variable "worker_count" {
   default = 2
 }
 
 locals {
-  names = toset(
-    [for i in range(1, var.num + 1) : "terraform-${i}"]
-  )
+  names = toset(concat(
+    [for i in range(1, var.master_count + 1) : "master-${i}"],
+    [for i in range(1, var.worker_count + 1) : "worker-${i}"]
+  ))
 }
 
 resource "yandex_compute_instance" "instance" {
