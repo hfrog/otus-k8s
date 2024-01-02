@@ -12,6 +12,8 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     - run: scripts/prepare_vms_for_k8s.sh
       env:
+        SSH_PRIVATE_KEY: |
+          ${{ secrets.SSH_PRIVATE_KEY }}
         BUCKET: ${{ secrets.BUCKET }}
 
 #  kubeadm-init:
