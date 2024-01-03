@@ -34,11 +34,11 @@ variable "ssh-keys" {
 }
 
 variable "master_count" {
-  default = 2
+  default = 3
 }
 
 variable "worker_count" {
-  default = 0
+  default = 2
 }
 
 variable "lb_count" {
