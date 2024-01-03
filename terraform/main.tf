@@ -38,7 +38,7 @@ variable "master_count" {
 }
 
 variable "worker_count" {
-  default = 1
+  default = 0
 }
 
 variable "lb_count" {
