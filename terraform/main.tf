@@ -34,7 +34,7 @@ variable "ssh-keys" {
 }
 
 variable "master_count" {
-  default = 3
+  default = 1
 }
 
 variable "worker_count" {
@@ -78,7 +78,7 @@ resource "yandex_compute_instance" "instance" {
   boot_disk {
     initialize_params {
       image_id = var.image_id
-      size     = startswith(each.value, "lb") ? 5 : 20
+      size     = startswith(each.value, "lb") ? 5 : 25
     }
   }
 
