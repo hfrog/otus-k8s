@@ -24,13 +24,64 @@ function install_cilium {
   API_SERVER_IP=$(kubectl config view --minify -o json | jq -r .clusters[].cluster.server | awk -F'[/:]' '{print $4}')
   API_SERVER_PORT=$(kubectl config view --minify -o json | jq -r .clusters[].cluster.server | awk -F'[/:]' '{print $5}')
   helm repo add cilium https://helm.cilium.io/
-  helm install cilium cilium/cilium --version 1.14.5 \
+  helm upgrade --install cilium cilium/cilium --wait --version 1.14.5 \
     --namespace kube-system \
+    --set ipam.operator.clusterPoolIPv4PodCIDRList='["10.244.0.0/16"]' \
     --set kubeProxyReplacement=true \
     --set k8sServiceHost=${API_SERVER_IP} \
     --set k8sServicePort=${API_SERVER_PORT} \
     --set hubble.relay.enabled=true \
-    --set hubble.ui.enabled=true
+    --set hubble.ui.enabled=true \
+    --set bgpControlPlane.enabled=true \
+    --set autoDirectNodeRoutes=true \
+    --set routingMode=native \
+    --set ipv4NativeRoutingCIDR="10.244.0.0/16"
+
+#    --set ingressController.enabled=true
+#    --set ingressController.service.type=NodePort
+
+  cat <<EOF | kubectl apply -f -
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumLoadBalancerIPPool
+metadata:
+  name: "lb-pool"
+spec:
+  cidrs:
+  - cidr: "10.200.0.0/24"
+EOF
+
+  cat <<EOF | kubectl apply -f -
+apiVersion: "cilium.io/v2alpha1"
+kind: CiliumBGPPeeringPolicy
+metadata:
+  name: bgp-policy-all-services
+spec:
+  nodeSelector:
+    matchExpressions:
+    - {key: somekey, operator: NotIn, values: ['never-used-value']} # all nodes
+  virtualRouters:
+  - localASN: 64512
+    exportPodCIDR: true
+    serviceSelector:
+      matchExpressions:
+      - {key: somekey, operator: NotIn, values: ['never-used-value']} # all services
+    neighbors:
+    - peerAddress: "192.168.10.35/32" # XXX
+      peerASN: 64512
+      connectRetryTimeSeconds: 30
+      keepAliveTimeSeconds: 30
+      gracefulRestart:
+        enabled: true
+        restartTimeSeconds: 60
+EOF
+
+  # enable ingress separately, because its LoadBalancer without CiliumLoadBalancerIPPool never goes out from pending state
+  helm upgrade --install cilium cilium/cilium --wait --version 1.14.5 \
+    --namespace kube-system \
+    --reuse-values \
+    --set k8sServiceHost=${API_SERVER_IP} \
+    --set k8sServicePort=${API_SERVER_PORT} \
+    --set ingressController.enabled=true
 }
 
 function wait_for_readiness {
