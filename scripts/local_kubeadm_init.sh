@@ -21,24 +21,42 @@ function install_cilium_client {
 function install_cilium {
   install_cilium_client # it won't be used for installation
   install_helm
-  API_SERVER_IP=$(kubectl config view --minify -o json | jq -r .clusters[].cluster.server | awk -F'[/:]' '{print $4}')
-  API_SERVER_PORT=$(kubectl config view --minify -o json | jq -r .clusters[].cluster.server | awk -F'[/:]' '{print $5}')
   helm repo add cilium https://helm.cilium.io/
+
+# For kube-proxy replacement
+#    --set kubeProxyReplacement=true \
+
+# For native routing
+#    --set routingMode=native \
+#    --set autoDirectNodeRoutes=true \
+#    --set ipv4NativeRoutingCIDR=10.244.0.0/16 \
+
+# For Kubernetes IPAM
+#    --set ipam.mode=kubernetes \
+#    --set k8s.requireIPv4PodCIDR=true \
+
+# For BGP
+#    --set bgpControlPlane.enabled=true \
+
+# For Hubble
+#    --set hubble.relay.enabled=true \
+#    --set hubble.ui.enabled=true
+
   helm upgrade --install cilium cilium/cilium --wait --version 1.14.5 \
     --namespace kube-system \
-    --set ipam.operator.clusterPoolIPv4PodCIDRList='["10.244.0.0/16"]' \
+    --set k8sServiceHost=$API_SERVER_IP \
+    --set k8sServicePort=$API_SERVER_PORT \
     --set kubeProxyReplacement=true \
-    --set k8sServiceHost=${API_SERVER_IP} \
-    --set k8sServicePort=${API_SERVER_PORT} \
-    --set hubble.relay.enabled=true \
-    --set hubble.ui.enabled=true \
-    --set bgpControlPlane.enabled=true \
-    --set autoDirectNodeRoutes=true \
     --set routingMode=native \
-    --set ipv4NativeRoutingCIDR="10.244.0.0/16"
+    --set autoDirectNodeRoutes=true \
+    --set ipv4NativeRoutingCIDR="10.244.0.0/16" \
+    --set ipam.mode=kubernetes \
+    --set k8s.requireIPv4PodCIDR=true \
+    --set bgpControlPlane.enabled=true \
+    --set hubble.relay.enabled=true \
+    --set hubble.ui.enabled=true
 
-#    --set ingressController.enabled=true
-#    --set ingressController.service.type=NodePort
+#XXX    --set enableIPv4Masquerade=false \
 
   cat <<EOF | kubectl apply -f -
 apiVersion: "cilium.io/v2alpha1"
@@ -76,12 +94,11 @@ spec:
 EOF
 
   # enable ingress separately, because its LoadBalancer without CiliumLoadBalancerIPPool never goes out from pending state
-  helm upgrade --install cilium cilium/cilium --wait --version 1.14.5 \
-    --namespace kube-system \
-    --reuse-values \
-    --set k8sServiceHost=${API_SERVER_IP} \
-    --set k8sServicePort=${API_SERVER_PORT} \
-    --set ingressController.enabled=true
+#  helm upgrade --install cilium cilium/cilium --wait --version 1.14.5 \
+#    --namespace kube-system \
+#    --reuse-values \
+#    --set ingressController.enabled=true \
+#    --set ingressController.service.type=NodePort
 }
 
 function wait_for_readiness {
@@ -94,7 +111,7 @@ function wait_for_readiness {
   done || true
 }
 
-kubeadm init --pod-network-cidr=10.244.0.0/16 --skip-phases=addon/kube-proxy --control-plane-endpoint $APISERVER_IP:6443
+kubeadm init --pod-network-cidr=10.244.0.0/16 --skip-phases=addon/kube-proxy --control-plane-endpoint $API_SERVER_IP:$API_SERVER_PORT
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
 

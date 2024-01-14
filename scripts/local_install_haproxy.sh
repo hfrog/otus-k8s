@@ -21,7 +21,7 @@ master=$(jq -r '.internal_ip.value|with_entries(select(.key == "master-1"))|to_e
 
 cat <<EOF > /etc/haproxy/z-apiserver.cfg
 frontend fe-apiserver
-  bind *:6443
+  bind *:$API_SERVER_PORT
   mode tcp
   option tcplog
   default_backend be-apiserver
