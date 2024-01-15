@@ -2,6 +2,16 @@
 set -x
 set -e
 
+function wait_for_readiness {
+  echo Waiting for node readiness
+  i=0
+  while ! kubectl get nodes | grep -qw Ready; do
+    sleep 1
+    i=$(( i + 1 ))
+    [ $i -ge 60 ] && break
+  done || true
+}
+
 function install_helm {
   curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
@@ -42,6 +52,8 @@ function install_cilium {
 #    --set hubble.relay.enabled=true \
 #    --set hubble.ui.enabled=true
 
+#    --set enableIPv4Masquerade=false
+
   helm upgrade --install cilium cilium/cilium --wait --version 1.14.5 \
     --namespace kube-system \
     --set k8sServiceHost=$API_SERVER_IP \
@@ -49,11 +61,8 @@ function install_cilium {
     --set kubeProxyReplacement=true \
     --set ipam.mode=kubernetes \
     --set k8s.requireIPv4PodCIDR=true \
-    --set bgpControlPlane.enabled=true \
     --set hubble.relay.enabled=true \
     --set hubble.ui.enabled=true
-
-#XXX    --set enableIPv4Masquerade=false \
 
   cat <<EOF | kubectl apply -f -
 apiVersion: "cilium.io/v2alpha1"
@@ -65,57 +74,20 @@ spec:
   - cidr: "$LB_IP_POOL"
 EOF
 
-  cat <<EOF | kubectl apply -f -
-apiVersion: "cilium.io/v2alpha1"
-kind: CiliumBGPPeeringPolicy
-metadata:
-  name: bgp-policy-all-services
-spec:
-  nodeSelector:
-    matchExpressions:
-    - {key: somekey, operator: NotIn, values: ['never-used-value']} # all nodes
-  virtualRouters:
-  - localASN: 64512
-    exportPodCIDR: true
-    serviceSelector:
-      matchExpressions:
-      - {key: somekey, operator: NotIn, values: ['never-used-value']} # all services
-    neighbors:
-    - peerAddress: "192.168.10.35/32" # XXX
-      peerASN: 64512
-      connectRetryTimeSeconds: 30
-      keepAliveTimeSeconds: 30
-      gracefulRestart:
-        enabled: true
-        restartTimeSeconds: 60
-EOF
-
-  # enable ingress separately, because its LoadBalancer without CiliumLoadBalancerIPPool never goes out from pending state
-#  helm upgrade --install cilium cilium/cilium --wait --version 1.14.5 \
-#    --namespace kube-system \
-#    --reuse-values \
-#    --set ingressController.enabled=true \
-#    --set ingressController.service.type=NodePort
-}
-
-function wait_for_readiness {
-  echo Waiting for node readiness
-  i=0
-  while ! kubectl get nodes | grep -qw Ready; do
-    sleep 1
-    i=$(( i + 1 ))
-    [ $i -ge 60 ] && break
-  done || true
+  helm upgrade --install cilium cilium/cilium --wait --version 1.14.5 \
+    --namespace kube-system \
+    --reuse-values \
+    --set ingressController.enabled=true
 }
 
 kubeadm init --pod-network-cidr=10.244.0.0/16 --skip-phases=addon/kube-proxy --control-plane-endpoint $API_SERVER_IP:$API_SERVER_PORT
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
-kubectl get nodes -o wide
-
 install_cilium
+
 wait_for_readiness
+kubectl get nodes -o wide
 
 # prepare admin.conf for downloading and then uploading to the Yandex S3 cloud
 cp /etc/kubernetes/admin.conf ~ubuntu && chown ubuntu: ~ubuntu/admin.conf && chmod go-rw ~ubuntu/admin.conf
