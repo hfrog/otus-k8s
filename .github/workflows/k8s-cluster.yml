@@ -17,7 +17,6 @@ jobs:
     - run: scripts/prepare_vms_for_k8s.sh
       env:
         BUCKET: ${{ secrets.BUCKET }}
-        K8S_VERSION: ${{ vars.K8S_VERSION }}
 
   install-loadbalancer:
     needs: prepare-vms-for-k8s
