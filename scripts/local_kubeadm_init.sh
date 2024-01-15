@@ -79,6 +79,10 @@ EOF
     --reuse-values \
     --set ingressController.enabled=true \
     --set ingressController.loadbalancerMode=shared
+
+  # Restart cilium operator
+  kubectl -n kube-system rollout restart deployment/cilium-operator
+  kubectl -n kube-system rollout restart ds/cilium
 }
 
 kubeadm init --pod-network-cidr=10.244.0.0/16 --skip-phases=addon/kube-proxy --control-plane-endpoint $API_SERVER_IP:$API_SERVER_PORT

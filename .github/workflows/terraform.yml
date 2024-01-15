@@ -29,7 +29,7 @@ jobs:
       name: manual
     steps:
     - uses: actions/checkout@v4
-    - run: scripts/awscli_install.sh
+    - run: scripts/install_awscli.sh
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
