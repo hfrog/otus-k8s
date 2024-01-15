@@ -26,7 +26,7 @@ function install_cilium {
 # For kube-proxy replacement
 #    --set kubeProxyReplacement=true \
 
-# For native routing
+# For native routing - it doesn't work in Yandex cloud without configured routing tables in YC
 #    --set routingMode=native \
 #    --set autoDirectNodeRoutes=true \
 #    --set ipv4NativeRoutingCIDR=10.244.0.0/16 \
@@ -47,9 +47,6 @@ function install_cilium {
     --set k8sServiceHost=$API_SERVER_IP \
     --set k8sServicePort=$API_SERVER_PORT \
     --set kubeProxyReplacement=true \
-    --set routingMode=native \
-    --set autoDirectNodeRoutes=true \
-    --set ipv4NativeRoutingCIDR="10.244.0.0/16" \
     --set ipam.mode=kubernetes \
     --set k8s.requireIPv4PodCIDR=true \
     --set bgpControlPlane.enabled=true \
@@ -115,10 +112,10 @@ kubeadm init --pod-network-cidr=10.244.0.0/16 --skip-phases=addon/kube-proxy --c
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
-wait_for_readiness
 kubectl get nodes -o wide
 
 install_cilium
+wait_for_readiness
 
 # prepare admin.conf for downloading and then uploading to the Yandex S3 cloud
 cp /etc/kubernetes/admin.conf ~ubuntu && chown ubuntu: ~ubuntu/admin.conf && chmod go-rw ~ubuntu/admin.conf
