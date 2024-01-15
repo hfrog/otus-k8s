@@ -62,7 +62,7 @@ metadata:
   name: "lb-pool"
 spec:
   cidrs:
-  - cidr: "10.200.0.0/24"
+  - cidr: "$LB_IP_POOL"
 EOF
 
   cat <<EOF | kubectl apply -f -
