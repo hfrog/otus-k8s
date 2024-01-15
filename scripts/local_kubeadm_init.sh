@@ -77,7 +77,8 @@ EOF
   helm upgrade --install cilium cilium/cilium --wait --version 1.14.5 \
     --namespace kube-system \
     --reuse-values \
-    --set ingressController.enabled=true
+    --set ingressController.enabled=true \
+    --set ingressController.loadbalancerMode=shared
 }
 
 kubeadm init --pod-network-cidr=10.244.0.0/16 --skip-phases=addon/kube-proxy --control-plane-endpoint $API_SERVER_IP:$API_SERVER_PORT
