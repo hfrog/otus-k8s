@@ -25,7 +25,7 @@ resource "yandex_compute_instance" "instance" {
   resources {
     cores         = 2
     core_fraction = 20
-    memory        = startswith(each.value, "lb") ? 2 : 8
+    memory        = startswith(each.value, "lb") ? 2 : each.value == "master-1" ? 3 : 8
   }
 
   boot_disk {
