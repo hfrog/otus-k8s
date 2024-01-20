@@ -31,9 +31,11 @@ function install_cilium_client {
 }
 
 function install_cilium {
+  install_helm
   install_cilium_client # It won't be used for installation, just a useful utility
 
-  wget https://github.com/cilium/charts/raw/master/cilium-1.15.0-rc.1.tgz
+  # -N for wget is to overwrite existing file
+  wget -N https://github.com/cilium/charts/raw/master/cilium-1.15.0-rc.1.tgz
   tar xzf cilium-1.15.0-rc.1.tgz
 
 # For kube-proxy replacement
@@ -82,24 +84,11 @@ spec:
 EOF
 }
 
-function install_ingress_controller {
-  helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-  helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx --wait --namespace=ingress-nginx --create-namespace --version $INGRESS_NGINX_HELM_VERSION
-}
-
-function install_cert_manager {
-  kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/$CERT_MANAGER_HELM_VERSION/cert-manager.crds.yaml
-  helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version $CERT_MANAGER_HELM_VERSION
-}
-
 kubeadm init --pod-network-cidr=$POD_NETWORK_CIDR --skip-phases=addon/kube-proxy --control-plane-endpoint $API_SERVER_IP:$API_SERVER_PORT
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
-install_helm
 install_cilium
-install_ingress_controller
-install_cert_manager
 
 wait_for_readiness
 kubectl get nodes -o wide

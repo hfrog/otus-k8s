@@ -53,23 +53,6 @@ jobs:
       env:
         BUCKET: ${{ secrets.BUCKET }}
 
-  add-ingress-to-haproxy:
-    needs: kubeadm-init
-    runs-on: ubuntu-20.04
-    steps:
-    - uses: actions/checkout@v4
-    - run: scripts/install_awscli.sh
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    - run: scripts/prepare_ssh.sh
-      env:
-        SSH_PRIVATE_KEY: |
-          ${{ secrets.SSH_PRIVATE_KEY }}
-    - run: scripts/add_ingress_to_haproxy.sh
-      env:
-        BUCKET: ${{ secrets.BUCKET }}
-
   kubeadm-join:
     needs: kubeadm-init
     runs-on: ubuntu-20.04
@@ -86,5 +69,40 @@ jobs:
         SSH_PRIVATE_KEY: |
           ${{ secrets.SSH_PRIVATE_KEY }}
     - run: scripts/kubeadm_join.sh
+      env:
+        BUCKET: ${{ secrets.BUCKET }}
+
+  install-additional-components:
+    needs:
+    - kubeadm-join
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v4
+    - run: scripts/install_awscli.sh
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    - run: scripts/prepare_ssh.sh
+      env:
+        SSH_PRIVATE_KEY: |
+          ${{ secrets.SSH_PRIVATE_KEY }}
+    - run: scripts/install_additional_components.sh
+      env:
+        BUCKET: ${{ secrets.BUCKET }}
+
+  add-ingress-to-haproxy:
+    needs: install-additional-components
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v4
+    - run: scripts/install_awscli.sh
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    - run: scripts/prepare_ssh.sh
+      env:
+        SSH_PRIVATE_KEY: |
+          ${{ secrets.SSH_PRIVATE_KEY }}
+    - run: scripts/add_ingress_to_haproxy.sh
       env:
         BUCKET: ${{ secrets.BUCKET }}
