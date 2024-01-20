@@ -22,6 +22,8 @@ resource "yandex_compute_instance" "instance" {
   name     = each.value
   hostname = each.value
 
+  allow_stopping_for_update = true
+
   resources {
     cores         = 2
     core_fraction = 20
