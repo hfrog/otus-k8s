@@ -17,7 +17,8 @@ function install_helm {
 
 function install_ingress_controller {
   helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-  helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx --namespace=ingress-nginx --create-namespace --version $INGRESS_NGINX_HELM_VERSION
+  helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx --namespace=ingress-nginx --create-namespace \
+    --values k8s/ingress-nginx/values.yaml --version $INGRESS_NGINX_HELM_VERSION
 }
 
 function install_cert_manager {
