@@ -1,0 +1,14 @@
+loki:
+  commonConfig:
+    replication_factor: 1
+  storage:
+    type: 'filesystem'
+  auth_enabled: false
+singleBinary:
+  replicas: 1
+  persistence:
+    storageClass: csi-s3
+monitoring:
+  serviceMonitor:
+    labels:
+      release: prometheus

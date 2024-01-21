@@ -35,3 +35,10 @@ grafana:
     - hosts:
       - grafana.51.250.96.180.hfrog.ru
       secretName: grafana-ingress-cert
+  additionalDataSources:
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100
+    jsonData:
+      maxLines: 1000

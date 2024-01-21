@@ -29,11 +29,23 @@ function install_cert_manager {
 
 function install_prometheus {
   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-  helm upgrade --install prometheus prometheus-community/kube-prometheus-stack --namespace=prometheus --create-namespace \
+  helm upgrade --install prometheus prometheus-community/kube-prometheus-stack --namespace=observability --create-namespace \
     --values k8s/prometheus/values.yaml --set grafana.adminPassword="$GRAFANA_PASSWORD" --version $PROMETHEUS_HELM_VERSION
+}
+
+function install_loki {
+  helm repo add grafana https://grafana.github.io/helm-charts
+  helm upgrade --install loki grafana/loki --namespace observability --create-namespace --values k8s/loki/values.yaml --version $LOKI_HELM_VERSION
+}
+
+function install_promtail {
+  helm repo add grafana https://grafana.github.io/helm-charts
+  helm upgrade --install promtail grafana/promtail --namespace observability --create-namespace --version $PROMTAIL_HELM_VERSION
 }
 
 install_helm
 install_ingress_controller
 install_cert_manager
 install_prometheus
+install_loki
+install_promtail
