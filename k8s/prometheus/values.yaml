@@ -1,0 +1,37 @@
+# values for kube-prometheus-stack.
+
+prometheus:
+  enabled: true
+  prometheusSpec:
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: csi-s3
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 5Gi
+
+grafana:
+  enabled: true
+  persistence:
+    enabled: true
+    storageClassName: csi-s3
+    accessModes: ["ReadWriteOnce"]
+    size: 5Gi
+  initChownData:
+    enabled: false
+  ingress:
+    enabled: true
+    hosts:
+    - grafana.51.250.96.180.hfrog.ru
+    ingressClassName: nginx
+    annotations:
+      nginx.ingress.kubernetes.io/rewrite-target: /
+      kubernetes.io/tls-acme: "true"
+      cert-manager.io/cluster-issuer: letsencrypt-staging
+      cert-manager.io/acme-challenge-type: http01
+    tls:
+    - hosts:
+      - grafana.51.250.96.180.hfrog.ru
+      secretName: grafana-ingress-cert

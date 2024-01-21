@@ -89,6 +89,7 @@ jobs:
     - run: scripts/install_additional_components.sh
       env:
         BUCKET: ${{ secrets.BUCKET }}
+        GRAFANA_PASSWORD: ${{ secrets.GRAFANA_PASSWORD }}
 
   add-ingress-to-haproxy:
     needs: install-additional-components

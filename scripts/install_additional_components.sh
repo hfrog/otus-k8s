@@ -17,7 +17,7 @@ function install_helm {
 
 function install_ingress_controller {
   helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-  helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx --wait --namespace=ingress-nginx --create-namespace --version $INGRESS_NGINX_HELM_VERSION
+  helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx --namespace=ingress-nginx --create-namespace --version $INGRESS_NGINX_HELM_VERSION
 }
 
 function install_cert_manager {
@@ -27,6 +27,13 @@ function install_cert_manager {
   kubectl apply -f k8s/cert-manager/manifests
 }
 
+function install_prometheus {
+  helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  helm upgrade --install prometheus prometheus-community/kube-prometheus-stack --namespace=prometheus --create-namespace \
+    --values k8s/prometheus/values.yaml --set grafana.adminPassword="$GRAFANA_PASSWORD" --version $PROMETHEUS_HELM_VERSION
+}
+
 install_helm
 install_ingress_controller
 install_cert_manager
+install_prometheus
