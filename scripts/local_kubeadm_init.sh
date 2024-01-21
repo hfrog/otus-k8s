@@ -97,11 +97,11 @@ function install_csi {
   cd -
 }
 
-function expand_yaml {
-  cat $1 | envsubst > ${1/tmpl/yaml}
+function expand_vars {
+  cat $1 | envsubst > ${1%.tmpl}
 }
 
-expand_yaml kubeadm-config.tmpl
+expand_yaml kubeadm-config.yaml.tmpl
 kubeadm init --config=kubeadm-config.yaml
 
 export KUBECONFIG=/etc/kubernetes/admin.conf

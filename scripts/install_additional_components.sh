@@ -9,10 +9,10 @@ chmod go-rw admin.conf
 export KUBECONFIG=admin.conf
 
 aws s3 --endpoint-url=https://storage.yandexcloud.net cp s3://$BUCKET/terraform/terraform-output.json .
-export LB1_EXTERNAL_IP=$(jq -r '.external_ip.value|with_entries(select(.key == "lb-1"))|.[]' terraform-output.json)
+export LB1_EXTERNAL_IP=$(jq -r '.external_ip.value."lb-1"' terraform-output.json)
 
-function expand_yaml {
-  cat $1 | envsubst > ${1/tmpl/yaml}
+function expand_vars {
+  cat $1 | envsubst > ${1%.tmpl}
 }
 
 function install_helm {
@@ -36,7 +36,7 @@ function install_cert_manager {
 }
 
 function install_prometheus {
-  expand_yaml k8s/prometheus/values.tmpl
+  expand_vars k8s/prometheus/values.yaml.tmpl
   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
   helm upgrade --install prometheus prometheus-community/kube-prometheus-stack --namespace=observability --create-namespace \
     --values k8s/prometheus/values.yaml --set grafana.adminPassword="$GRAFANA_PASSWORD" --version $PROMETHEUS_HELM_VERSION
