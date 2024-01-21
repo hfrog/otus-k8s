@@ -45,8 +45,8 @@ function install_promtail {
 }
 
 install_helm
+install_prometheus  # Install prometheus before ingress-nginx to create necessary CRD definitions
 install_ingress_controller
 install_cert_manager
-install_prometheus
 install_loki
 install_promtail
