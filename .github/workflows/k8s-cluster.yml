@@ -52,6 +52,9 @@ jobs:
     - run: scripts/kubeadm_init.sh
       env:
         BUCKET: ${{ secrets.BUCKET }}
+        CSI_BUCKET: ${{ secrets.CSI_BUCKET }}
+        AWS_CSI_ACCESS_KEY_ID: ${{ secrets.AWS_CSI_ACCESS_KEY_ID }}
+        AWS_CSI_SECRET_ACCESS_KEY: ${{ secrets.AWS_CSI_SECRET_ACCESS_KEY }}
 
   kubeadm-join:
     needs: kubeadm-init

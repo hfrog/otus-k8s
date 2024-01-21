@@ -12,7 +12,7 @@ pull-image-on-create: false
 disable-pull-on-run: false
 EOF
 
-apt-get install -y apt-transport-https ca-certificates curl gpg jq
+apt-get install -y apt-transport-https ca-certificates curl git gpg jq
 [ -d /etc/apt/keyrings ] || mkdir /etc/apt/keyrings
 [ -f /etc/apt/keyrings/kubernetes-apt-keyring.gpg ] && rm -f /etc/apt/keyrings/kubernetes-apt-keyring.gpg
 curl -fsSL https://pkgs.k8s.io/core:/stable:/v${K8S_VERSION}/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg

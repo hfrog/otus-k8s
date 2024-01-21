@@ -84,11 +84,25 @@ spec:
 EOF
 }
 
+function install_csi {
+  [ -d k8s-csi-s3 ] && rm -fr k8s-csi-s3 || true
+  git clone https://github.com/yandex-cloud/k8s-csi-s3.git
+  cd k8s-csi-s3
+  git checkout $K8S_CSI_S3_VERSION
+  helm upgrade --install csi-s3 ./deploy/helm/csi-s3 \
+    --namespace kube-system \
+    --set storageClass.singleBucket=$CSI_BUCKET \
+    --set secret.accessKey=$AWS_CSI_ACCESS_KEY_ID \
+    --set secret.secretKey=$AWS_CSI_SECRET_ACCESS_KEY
+  cd -
+}
+
 kubeadm init --pod-network-cidr=$POD_NETWORK_CIDR --skip-phases=addon/kube-proxy --control-plane-endpoint $API_SERVER_IP:$API_SERVER_PORT
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
 install_cilium
+install_csi
 
 wait_for_readiness
 kubectl get nodes -o wide
