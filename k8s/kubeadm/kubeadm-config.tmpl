@@ -1,0 +1,20 @@
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: InitConfiguration
+skipPhases:
+- addon/kube-proxy
+---
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: ClusterConfiguration
+controlPlaneEndpoint: "$API_SERVER_IP:$API_SERVER_PORT"
+etcd:
+  local:
+    extraArgs:
+      listen-metrics-urls: http://0.0.0.0:2381
+controllerManager:
+  extraArgs:
+    bind-address: "0.0.0.0"
+networking:
+  podSubnet: "$POD_NETWORK_CIDR"
+scheduler:
+  extraArgs:
+    bind-address: "0.0.0.0"

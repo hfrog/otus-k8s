@@ -97,7 +97,12 @@ function install_csi {
   cd -
 }
 
-kubeadm init --pod-network-cidr=$POD_NETWORK_CIDR --skip-phases=addon/kube-proxy --control-plane-endpoint $API_SERVER_IP:$API_SERVER_PORT
+function expand_yaml {
+  cat $1 | envsubst > ${1/tmpl/yaml}
+}
+
+expand_yaml kubeadm-config.tmpl
+kubeadm init --config=kubeadm-config.yaml
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
