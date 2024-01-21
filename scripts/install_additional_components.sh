@@ -8,6 +8,13 @@ aws s3 --endpoint-url=https://storage.yandexcloud.net cp s3://$BUCKET/k8s/admin.
 chmod go-rw admin.conf
 export KUBECONFIG=admin.conf
 
+aws s3 --endpoint-url=https://storage.yandexcloud.net cp s3://$BUCKET/terraform/terraform-output.json .
+export LB1_EXTERNAL_IP=$(jq -r '.external_ip.value|with_entries(select(.key == "lb-1"))|.[]' terraform-output.json)
+
+function expand_yaml {
+  cat $1 | envsubst > ${1/tmpl/yaml}
+}
+
 function install_helm {
   curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
@@ -29,6 +36,7 @@ function install_cert_manager {
 }
 
 function install_prometheus {
+  expand_yaml k8s/prometheus/values.tmpl
   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
   helm upgrade --install prometheus prometheus-community/kube-prometheus-stack --namespace=observability --create-namespace \
     --values k8s/prometheus/values.yaml --set grafana.adminPassword="$GRAFANA_PASSWORD" --version $PROMETHEUS_HELM_VERSION

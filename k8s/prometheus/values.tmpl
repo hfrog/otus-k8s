@@ -24,7 +24,7 @@ grafana:
   ingress:
     enabled: true
     hosts:
-    - grafana.51.250.96.180.hfrog.ru
+    - grafana.${LB1_EXTERNAL_IP}.hfrog.ru
     ingressClassName: nginx
     annotations:
       nginx.ingress.kubernetes.io/rewrite-target: /
@@ -33,7 +33,7 @@ grafana:
       cert-manager.io/acme-challenge-type: http01
     tls:
     - hosts:
-      - grafana.51.250.96.180.hfrog.ru
+      - grafana.${LB1_EXTERNAL_IP}.hfrog.ru
       secretName: grafana-ingress-cert
   additionalDataSources:
   - name: Loki
