@@ -48,6 +48,7 @@ jobs:
         cd app/redis-cart
         source "$(werf ci-env github --as-file)"
         werf converge --disable-auto-host-cleanup=true --namespace=$NAMESPACE
+      name: deploy
 
   cartservice:
     runs-on: ubuntu-20.04
@@ -76,3 +77,4 @@ jobs:
         cd app/cartservice
         source "$(werf ci-env github --as-file)"
         werf converge --disable-auto-host-cleanup=true --namespace=$NAMESPACE
+      name: deploy
