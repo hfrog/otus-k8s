@@ -6,6 +6,13 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v4
+    - uses: dorny/paths-filter@v2
+      with:
+        filters: |
+          workflow:
+          - '.github/workflows/app.yaml'
+          src:
+          - 'app/redis-cart/**'
     - run: scripts/install_awscli.sh
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
