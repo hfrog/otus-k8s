@@ -10,15 +10,13 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-    - id: getconfig
-      run: scripts/app_prepare_env.sh
+    - run: scripts/app_prepare_env.sh
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         BUCKET: ${{ secrets.BUCKET }}
     - uses: werf/actions/install@v1.2
     - run: |
+        cd app/redis-cart
         source "$(werf ci-env github --as-file)"
-#        werf converge --disable-auto-host-cleanup=true --namespace=xxx
-      env:
-        WERF_KUBECONFIG_BASE64: ${{ steps.getconfig.outputs.WERF_KUBECONFIG_BASE64 }}
+        werf converge --disable-auto-host-cleanup=true --namespace=$NAMESPACE
