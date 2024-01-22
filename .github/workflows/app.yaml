@@ -2,8 +2,29 @@ name: app
 on:
 - push
 jobs:
+  detect-changes:
+    runs-on: ubuntu-20.04
+    outputs:
+      cartservice: ${{ steps.filter.outputs.cartservice }}
+      redis-cart:  ${{ steps.filter.outputs.redis-cart }}
+      workflow:    ${{ steps.filter.outputs.workflow }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: dorny/paths-filter@v2
+      id: filter
+      with:
+        filters: |
+          cartservice:
+          - 'app/cartservice/**'
+          redis-cart:
+          - 'app/redis-cart/**'
+          workflow:
+          - '.github/workflows/app.yaml'
+
   redis-cart:
     runs-on: ubuntu-20.04
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.redis-cart == 'true' || needs.detect-changes.outputs.workflow == 'true' }}
     steps:
     - uses: actions/checkout@v4
     - uses: dorny/paths-filter@v2
@@ -30,6 +51,8 @@ jobs:
 
   cartservice:
     runs-on: ubuntu-20.04
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.cartservice == 'true' || needs.detect-changes.outputs.workflow == 'true' }}
     steps:
     - uses: actions/checkout@v4
     - uses: dorny/paths-filter@v2
