@@ -1,0 +1,9 @@
+dependencies:
+- name: redis-cart
+  repository: ""
+  version: 1.0.0
+- name: cartservice
+  repository: ""
+  version: 1.0.0
+digest: sha256:a97b062963926f32d61ba97757dc07d153e20cfb6b615224079b91d9624bee12
+generated: "2024-01-23T21:15:52.845451+03:00"

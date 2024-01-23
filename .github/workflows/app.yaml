@@ -2,28 +2,8 @@ name: app
 on:
 - push
 jobs:
-  detect-changes:
-    runs-on: ubuntu-20.04
-    outputs:
-      cartservice: ${{ steps.filter.outputs.cartservice }}
-      redis-cart:  ${{ steps.filter.outputs.redis-cart }}
-      workflow:    ${{ steps.filter.outputs.workflow }}
-    steps:
-    - uses: actions/checkout@v4
-    - uses: dorny/paths-filter@v2
-      id: filter
-      with:
-        filters: |
-          cartservice:
-          - 'app/cartservice/**'
-          redis-cart:
-          - 'app/redis-cart/**'
-          workflow:
-          - '.github/workflows/app.yaml'
-
   deploy:
     runs-on: ubuntu-20.04
-    needs: detect-changes
     steps:
     - uses: actions/checkout@v4
     - run: scripts/install_awscli.sh
@@ -36,15 +16,10 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         BUCKET: ${{ secrets.BUCKET }}
     - uses: werf/actions/install@v1.2
-    - name: deploy redis-cart
-      if: ${{ needs.detect-changes.outputs.redis-cart == 'true' || needs.detect-changes.outputs.workflow == 'true' }}
-      run: |
-        cd $GITHUB_WORKSPACE/app/redis-cart
+    - run: |
+        cd $GITHUB_WORKSPACE/app
         source "$(werf ci-env github --as-file)"
-        werf converge --disable-auto-host-cleanup=true --namespace=$NAMESPACE  # We don't build image here
-    - name: deploy cartservice
-      if: ${{ needs.detect-changes.outputs.cartservice == 'true' || needs.detect-changes.outputs.workflow == 'true' }}
-      run: |
-        cd $GITHUB_WORKSPACE/app/cartservice
-        source "$(werf ci-env github --as-file)"
-        werf converge --namespace=$NAMESPACE
+        werf converge --disable-auto-host-cleanup=true
+      env:
+        WERF_ENV: dev
+#        werf converge --disable-auto-host-cleanup=true --namespace=$NAMESPACE  # We don't build image here
