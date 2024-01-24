@@ -1,2 +1,6 @@
 project: msd
 configVersion: 1
+---
+image: cartservice
+context: cartservice
+dockerfile: Dockerfile

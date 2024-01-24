@@ -1,6 +1,7 @@
 name: app
 on:
 - push
+- workflow_dispatch
 jobs:
   deploy:
     runs-on: ubuntu-20.04
@@ -19,7 +20,14 @@ jobs:
     - run: |
         cd $GITHUB_WORKSPACE/app
         source "$(werf ci-env github --as-file)"
-        werf converge --disable-auto-host-cleanup=true
+        eval werf kubectl create secret docker-registry registrysecret --namespace=$(werf helm get-namespace) \
+          --docker-username=json_key --docker-password=\'$(echo $IMAGE_PULLER_KEY | base64 -d)\' --docker-server=cr.yandex \
+          --dry-run=client --output=yaml | werf kubectl apply -f -
+
+        echo $IMAGE_UPLOADER_KEY | base64 -d | werf cr login --username=json_key --password-stdin=true cr.yandex
+        werf converge --repo $CONTAINER_REPO
       env:
         WERF_ENV: dev
-#        werf converge --disable-auto-host-cleanup=true --namespace=$NAMESPACE  # We don't build image here
+        IMAGE_PULLER_KEY: ${{ secrets.IMAGE_PULLER_KEY }}
+        IMAGE_UPLOADER_KEY: ${{ secrets.IMAGE_UPLOADER_KEY }}
+        CONTAINER_REPO: ${{ secrets.CONTAINER_REPO }}
