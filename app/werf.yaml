@@ -4,3 +4,7 @@ configVersion: 1
 image: cartservice
 context: cartservice
 dockerfile: Dockerfile
+---
+image: checkoutservice
+context: checkoutservice
+dockerfile: Dockerfile
