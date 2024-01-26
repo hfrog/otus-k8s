@@ -8,3 +8,7 @@ dockerfile: Dockerfile
 image: checkoutservice
 context: checkoutservice
 dockerfile: Dockerfile
+---
+image: emailservice
+context: emailservice
+dockerfile: Dockerfile
