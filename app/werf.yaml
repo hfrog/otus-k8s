@@ -36,3 +36,7 @@ dockerfile: Dockerfile
 image: currencyservice
 context: currencyservice
 dockerfile: Dockerfile
+---
+image: shippingservice
+context: shippingservice
+dockerfile: Dockerfile
