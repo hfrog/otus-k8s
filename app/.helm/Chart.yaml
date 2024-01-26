@@ -64,3 +64,9 @@ dependencies:
     export-values:
       - parent: werf
         child: werf
+
+  - name: adservice
+    version: "1.0.0"
+    export-values:
+      - parent: werf
+        child: werf

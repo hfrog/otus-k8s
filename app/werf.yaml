@@ -40,3 +40,7 @@ dockerfile: Dockerfile
 image: shippingservice
 context: shippingservice
 dockerfile: Dockerfile
+---
+image: adservice
+context: adservice
+dockerfile: Dockerfile
