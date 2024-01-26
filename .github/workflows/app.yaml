@@ -20,6 +20,7 @@ jobs:
     - run: |
         cd $GITHUB_WORKSPACE/app
         source "$(werf ci-env github --as-file)"
+        werf kubectl create namespace $(werf helm get-namespace) --dry-run=client --output=yaml | werf kubectl apply -f -
         eval werf kubectl create secret docker-registry registrysecret --namespace=$(werf helm get-namespace) \
           --docker-username=json_key --docker-password=\'$(echo $IMAGE_PULLER_KEY | base64 -d)\' --docker-server=cr.yandex \
           --dry-run=client --output=yaml | werf kubectl apply -f -
