@@ -16,3 +16,7 @@ dockerfile: Dockerfile
 image: recommendationservice
 context: recommendationservice
 dockerfile: Dockerfile
+---
+image: frontend
+context: frontend
+dockerfile: Dockerfile
