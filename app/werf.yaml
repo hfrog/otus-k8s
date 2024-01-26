@@ -12,3 +12,7 @@ dockerfile: Dockerfile
 image: emailservice
 context: emailservice
 dockerfile: Dockerfile
+---
+image: recommendationservice
+context: recommendationservice
+dockerfile: Dockerfile
