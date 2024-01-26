@@ -24,3 +24,7 @@ dockerfile: Dockerfile
 image: paymentservice
 context: paymentservice
 dockerfile: Dockerfile
+---
+image: productcatalogservice
+context: productcatalogservice
+dockerfile: Dockerfile
