@@ -28,3 +28,7 @@ dockerfile: Dockerfile
 image: productcatalogservice
 context: productcatalogservice
 dockerfile: Dockerfile
+---
+image: loadgenerator
+context: loadgenerator
+dockerfile: Dockerfile
