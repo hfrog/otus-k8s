@@ -10,7 +10,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: {{ $.Release.Namespace }}.51.250.96.180.hfrog.ru
+  - host: {{ $.Release.Namespace }}.{{ $.Values.external_ip }}.hfrog.ru
     http:
       paths:
       - path: /
@@ -22,5 +22,5 @@ spec:
               number: 80
   tls:
   - hosts:
-    - {{ $.Release.Namespace }}.51.250.96.180.hfrog.ru
+    - {{ $.Release.Namespace }}.{{ $.Values.external_ip }}.hfrog.ru
     secretName: frontend-ingress-cert

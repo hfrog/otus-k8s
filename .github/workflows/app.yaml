@@ -26,7 +26,7 @@ jobs:
           --dry-run=client --output=yaml | werf kubectl apply -f -
 
         echo $IMAGE_UPLOADER_KEY | base64 -d | werf cr login --username=json_key --password-stdin=true cr.yandex
-        werf converge --repo $CONTAINER_REPO
+        werf converge --repo $CONTAINER_REPO --set frontend.external_ip=$LB1_EXTERNAL_IP
       env:
         WERF_ENV: dev
         IMAGE_PULLER_KEY: ${{ secrets.IMAGE_PULLER_KEY }}

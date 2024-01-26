@@ -1,72 +1,50 @@
 dependencies:
-  - name: redis-cart
-    version: "1.0.0"
-    export-values:
-      - parent: werf
-        child: werf
+- name: redis-cart
+  version: "1.0.0"
+  export-values: &export-values
+  - parent: werf
+    child: werf
 
-  - name: cartservice
-    version: "1.0.0"
-    export-values:
-      - parent: werf
-        child: werf
+- name: cartservice
+  version: "1.0.0"
+  export-values: *export-values
 
-  - name: checkoutservice
-    version: "1.0.0"
-    export-values:
-      - parent: werf
-        child: werf
+- name: checkoutservice
+  version: "1.0.0"
+  export-values: *export-values
 
-  - name: emailservice
-    version: "1.0.0"
-    export-values:
-      - parent: werf
-        child: werf
+- name: emailservice
+  version: "1.0.0"
+  export-values: *export-values
 
-  - name: recommendationservice
-    version: "1.0.0"
-    export-values:
-      - parent: werf
-        child: werf
+- name: recommendationservice
+  version: "1.0.0"
+  export-values: *export-values
 
-  - name: frontend
-    version: "1.0.0"
-    export-values:
-      - parent: werf
-        child: werf
+- name: frontend
+  version: "1.0.0"
+  export-values: *export-values
 
-  - name: paymentservice
-    version: "1.0.0"
-    export-values:
-      - parent: werf
-        child: werf
+- name: paymentservice
+  version: "1.0.0"
+  export-values: *export-values
 
-  - name: productcatalogservice
-    version: "1.0.0"
-    export-values:
-      - parent: werf
-        child: werf
+- name: productcatalogservice
+  version: "1.0.0"
+  export-values: *export-values
 
-  - name: loadgenerator
-    version: "1.0.0"
-    export-values:
-      - parent: werf
-        child: werf
+- name: loadgenerator
+  version: "1.0.0"
+  export-values: *export-values
 
-  - name: currencyservice
-    version: "1.0.0"
-    export-values:
-      - parent: werf
-        child: werf
+- name: currencyservice
+  version: "1.0.0"
+  export-values: *export-values
 
-  - name: shippingservice
-    version: "1.0.0"
-    export-values:
-      - parent: werf
-        child: werf
+- name: shippingservice
+  version: "1.0.0"
+  export-values: *export-values
 
-  - name: adservice
-    version: "1.0.0"
-    export-values:
-      - parent: werf
-        child: werf
+- name: adservice
+  version: "1.0.0"
+  export-values: *export-values
