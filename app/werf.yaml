@@ -20,3 +20,7 @@ dockerfile: Dockerfile
 image: frontend
 context: frontend
 dockerfile: Dockerfile
+---
+image: paymentservice
+context: paymentservice
+dockerfile: Dockerfile
