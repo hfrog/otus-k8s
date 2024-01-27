@@ -26,6 +26,8 @@ function install_ingress_controller {
   helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
   helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx --namespace=ingress-nginx --create-namespace \
     --values k8s/ingress-nginx/values.yaml --version $INGRESS_NGINX_HELM_VERSION
+  kubectl create cm ingress-nginx-dashboard --namespace ingress-nginx --from-file=ingress-nginx-prometheus-loki-1706391152790.json=k8s/ingress-nginx/ingress-nginx-prometheus-loki-1706391152790.json
+  kubectl patch cm ingress-nginx-dashboard --namespace ingress-nginx --patch '{"metadata":{"labels":{"grafana_dashboard":"1"}}}'
 }
 
 function install_prometheus {
