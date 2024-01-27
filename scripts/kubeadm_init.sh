@@ -12,7 +12,7 @@ function fetch_and_upload_file {
 
 aws s3 --endpoint-url=https://storage.yandexcloud.net cp s3://$BUCKET/terraform/terraform-output.json .
 MASTER1=$(jq -r '.external_ip.value."master-1"' terraform-output.json)
-scp -o StrictHostKeyChecking=no scripts/local_kubeadm_init.sh scripts/environment_vars.sh k8s/kubeadm/kubeadm-config.yaml.tmpl ubuntu@${MASTER1}:
+scp -r -o StrictHostKeyChecking=no scripts/local_kubeadm_init.sh scripts/environment_vars.sh k8s ubuntu@${MASTER1}:
 LB1_EXTERNAL_IP=$(jq -r '.external_ip.value."lb-1"' terraform-output.json)
 ssh ubuntu@$MASTER1 sudo \
   API_SERVER_IP=$LB1_EXTERNAL_IP \

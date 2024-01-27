@@ -1,0 +1,34 @@
+# For native routing - it doesn't work in Yandex cloud without configured routing tables in YC
+# routingMode: native
+# autoDirectNodeRoutes: true
+# ipv4NativeRoutingCIDR: 10.244.0.0/16
+
+# For BGP
+# bgpControlPlane:
+#   enabled: true
+
+# For cilium ingress
+# ingressController:
+#   enabled: true
+#   loadbalancerMode: shared
+
+# enableIPv4Masquerade: false
+
+k8sServiceHost: $API_SERVER_IP
+k8sServicePort: $API_SERVER_PORT
+
+# For kube-proxy replacement
+kubeProxyReplacement: true
+
+# For Kubernetes IPAM
+ipam:
+  mode: kubernetes
+k8s:
+  requireIPv4PodCIDR: true
+
+# For Hubble
+hubble:
+  relay:
+    enabled: true
+  ui:
+    enabled: true

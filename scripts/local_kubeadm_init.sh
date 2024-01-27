@@ -35,43 +35,12 @@ function install_cilium {
   install_cilium_client # It won't be used for installation, just a useful utility
 
   # -N for wget is to overwrite existing file
-  wget -N https://github.com/cilium/charts/raw/master/cilium-1.15.0-rc.1.tgz
-  tar xzf cilium-1.15.0-rc.1.tgz
+  wget -N https://github.com/cilium/charts/raw/master/cilium-$CILIUM_VERSION.tgz
+  tar xzf cilium-$CILIUM_VERSION.tgz
 
-# For kube-proxy replacement
-#    --set kubeProxyReplacement=true \
-
-# For native routing - it doesn't work in Yandex cloud without configured routing tables in YC
-#    --set routingMode=native \
-#    --set autoDirectNodeRoutes=true \
-#    --set ipv4NativeRoutingCIDR=10.244.0.0/16 \
-
-# For Kubernetes IPAM
-#    --set ipam.mode=kubernetes \
-#    --set k8s.requireIPv4PodCIDR=true \
-
-# For BGP
-#    --set bgpControlPlane.enabled=true \
-
-# For Hubble
-#    --set hubble.relay.enabled=true \
-#    --set hubble.ui.enabled=true
-
-# For cilium ingress
-#    --set ingressController.enabled=true \
-#    --set ingressController.loadbalancerMode=shared
-
-#    --set enableIPv4Masquerade=false
-
+  expand_vars k8s/cilium/values.yaml.tmpl
   helm upgrade --install cilium ./cilium --wait \
-    --namespace kube-system \
-    --set k8sServiceHost=$API_SERVER_IP \
-    --set k8sServicePort=$API_SERVER_PORT \
-    --set kubeProxyReplacement=true \
-    --set ipam.mode=kubernetes \
-    --set k8s.requireIPv4PodCIDR=true \
-    --set hubble.relay.enabled=true \
-    --set hubble.ui.enabled=true
+    --namespace kube-system --values k8s/cilium/values.yaml
 
   cat <<EOF | kubectl apply -f -
 apiVersion: "cilium.io/v2alpha1"
@@ -87,22 +56,18 @@ EOF
 function install_csi {
   [ -d k8s-csi-s3 ] && rm -fr k8s-csi-s3 || true
   git clone https://github.com/yandex-cloud/k8s-csi-s3.git
-  cd k8s-csi-s3
-  git checkout $K8S_CSI_S3_VERSION
-  helm upgrade --install csi-s3 ./deploy/helm/csi-s3 \
-    --namespace kube-system \
-    --set storageClass.singleBucket=$CSI_BUCKET \
-    --set secret.accessKey=$AWS_CSI_ACCESS_KEY_ID \
-    --set secret.secretKey=$AWS_CSI_SECRET_ACCESS_KEY
-  cd -
+  git -C k8s-csi-s3 checkout $K8S_CSI_S3_VERSION
+  expand_vars k8s/csi-s3/values.yaml.tmpl
+  helm upgrade --install csi-s3 ./k8s-csi-s3/deploy/helm/csi-s3 \
+    --namespace kube-system --values=k8s/csi-s3/values.yaml
 }
 
 function expand_vars {
   cat $1 | envsubst > ${1%.tmpl}
 }
 
-expand_yaml kubeadm-config.yaml.tmpl
-kubeadm init --config=kubeadm-config.yaml
+expand_vars k8s/kubeadm/config.yaml.tmpl
+kubeadm init --config=k8s/kubeadm/config.yaml
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
