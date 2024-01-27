@@ -32,3 +32,21 @@ hubble:
     enabled: true
   ui:
     enabled: true
+
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    labels:
+      release: prometheus
+operator:
+  prometheus:
+    serviceMonitor:
+      enabled: true
+      labels:
+        release: prometheus
+  dashboards:
+    enabled: true
+
+dashboards:
+  enabled: true
