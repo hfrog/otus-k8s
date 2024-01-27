@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: logs-dashboard
+  labels:
+    grafana_dashboard: "1"
+data:
+  {{- (.Files.Glob "files/*dashboard*.json").AsConfig | nindent 2 }}
