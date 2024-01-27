@@ -68,3 +68,46 @@ resource "yandex_vpc_subnet" "subnet-1" {
   v4_cidr_blocks = ["192.168.10.0/24"]
   route_table_id = yandex_vpc_route_table.table1.id
 }
+
+resource "yandex_vpc_default_security_group" "group1" {
+  network_id = yandex_vpc_network.network-1.id
+
+  ingress {
+    protocol       = "ANY"
+    description    = "Any internal"
+    v4_cidr_blocks = ["10.0.0.0/8", "192.168.0.0/16"]
+  }
+
+  ingress {
+    protocol       = "TCP"
+    description    = "SSH"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    port           = 22
+  }
+
+  ingress {
+    protocol       = "TCP"
+    description    = "HTTP"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    port           = 80
+  }
+
+  ingress {
+    protocol       = "TCP"
+    description    = "HTTPS"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    port           = 443
+  }
+
+  ingress {
+    protocol       = "TCP"
+    description    = "Kubernetes API"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    port           = 6443
+  }
+
+  egress {
+    protocol       = "ANY"
+    v4_cidr_blocks = ["0.0.0.0/0"]
+  }
+}
