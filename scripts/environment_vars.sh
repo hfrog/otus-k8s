@@ -9,6 +9,7 @@ export POD_NETWORK_CIDR=10.244.0.0/16
 # IP Pool for LoadBalancer type services
 export LB_IP_POOL=10.200.0.0/24
 
+export YQ_VERSION=v4.40.5
 export CILIUM_VERSION=1.15.0-rc.1
 export K8S_CSI_S3_VERSION=v0.40.0
 export INGRESS_NGINX_HELM_VERSION=4.9.0

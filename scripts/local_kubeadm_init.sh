@@ -14,11 +14,24 @@ function wait_for_readiness {
   done || true
 }
 
+function install_yq {
+  local BINARY=yq_linux_amd64
+  wget https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/${BINARY}.tar.gz -O - | \
+    tar xz && mv ${BINARY} /usr/local/bin/yq && ./install-man-page.sh && rm -f install-man-page.sh yq.1
+}
+
 function install_helm {
   curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
   sudo apt-get update
   sudo apt-get -y install helm
+}
+
+function install_prometheus_crds {
+  install_yq
+  helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  helm template prometheus prometheus-community/kube-prometheus-stack --include-crds --version $PROMETHEUS_HELM_VERSION | \
+    yq 'select(.kind == "CustomResourceDefinition")' | kubectl create -f -
 }
 
 function install_cilium_client {
@@ -31,7 +44,6 @@ function install_cilium_client {
 }
 
 function install_cilium {
-  install_helm
   install_cilium_client # It won't be used for installation, just a useful utility
 
   # -N for wget is to overwrite existing file
@@ -51,6 +63,8 @@ spec:
   cidrs:
   - cidr: "$LB_IP_POOL"
 EOF
+
+  rm -fr cilium-$CILIUM_VERSION.tgz cilium
 }
 
 function install_csi {
@@ -60,6 +74,7 @@ function install_csi {
   expand_vars k8s/csi-s3/values.yaml.tmpl
   helm upgrade --install csi-s3 ./k8s-csi-s3/deploy/helm/csi-s3 \
     --namespace kube-system --values=k8s/csi-s3/values.yaml
+  rm -fr k8s-csi-s3
 }
 
 function expand_vars {
@@ -71,6 +86,8 @@ kubeadm init --config=k8s/kubeadm/config.yaml
 
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
+install_helm
+install_prometheus_crds # To create CRDs, especially ServiceMonitor
 install_cilium
 install_csi
 

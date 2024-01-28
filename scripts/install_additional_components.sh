@@ -28,18 +28,18 @@ function install_ingress_controller {
     --values k8s/ingress-nginx/values.yaml --version $INGRESS_NGINX_HELM_VERSION
 }
 
-function install_cert_manager {
-  kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/$CERT_MANAGER_HELM_VERSION/cert-manager.crds.yaml
-  helm repo add jetstack https://charts.jetstack.io
-  helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version $CERT_MANAGER_HELM_VERSION
-  kubectl apply -f k8s/cert-manager/manifests
-}
-
 function install_prometheus {
   expand_vars k8s/prometheus/values.yaml.tmpl
   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
   helm upgrade --install prometheus prometheus-community/kube-prometheus-stack --namespace=observability --create-namespace \
     --values k8s/prometheus/values.yaml --set grafana.adminPassword="$GRAFANA_PASSWORD" --version $PROMETHEUS_HELM_VERSION
+}
+
+function install_cert_manager {
+  kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/$CERT_MANAGER_HELM_VERSION/cert-manager.crds.yaml
+  helm repo add jetstack https://charts.jetstack.io
+  helm upgrade --install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version $CERT_MANAGER_HELM_VERSION
+  kubectl apply -f k8s/cert-manager/manifests
 }
 
 function install_loki {
@@ -53,8 +53,8 @@ function install_promtail {
 }
 
 install_helm
-install_prometheus  # Install prometheus before ingress-nginx to create necessary CRD definitions
 install_ingress_controller
+install_prometheus
 install_cert_manager
 install_loki
 install_promtail
